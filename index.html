@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>TicTacToe</title>
+    <meta name="author" content="Anas R." />
+    <meta name="description" content="The TocTacToe Game that's impossible to beat" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="css/style.css" rel="stylesheet" />
+    <link href="css/cardstyle.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="name-input hidden">
+        <span>Type your name</span>
+        <input type="text">
+        <input type="button" value="Submit">
+    </div>
+    <div class="scoreboard">
+        <div class="player-name" id="player-1"><span>Player</span></div>
+        <div class="score" id="score-1"><span>0</span></div>
+        <div class="score" id="score-2"><span>0</span></div>
+        <div class="player-name" id="player-2"><span>Computer</span></div>
+    </div>
+    <div class="board">
+        <div class="board-row">
+            <div class="board-case" id="case-0"><span></span></div>
+            <div class="board-case" id="case-1"><span></span></div>
+            <div class="board-case" id="case-2"><span></span></div>
+        </div>
+        <div class="board-row">
+            <div class="board-case" id="case-3"><span></span></div>
+            <div class="board-case" id="case-4"><span></span></div>
+            <div class="board-case" id="case-5"><span></span></div>
+        </div>
+        <div class="board-row">
+            <div class="board-case" id="case-6"><span></span></div>
+            <div class="board-case" id="case-7"><span></span></div>
+            <div class="board-case" id="case-8"><span></span></div>
+        </div>
+    </div>
+    <div class="controls">
+        <span>You play first!</span>
+    </div>
+
+    <script src="js/game.js"></script>
+
+</body>
+
+</html>
