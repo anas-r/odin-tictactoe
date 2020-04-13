@@ -39,6 +39,9 @@ body div {
     margin: auto;
 }
 
+.player-1, .player-2 {
+    font-size: x-large;
+}
 .board {
     border-bottom: 2px solid #CBD5E0;
     padding: 15px;

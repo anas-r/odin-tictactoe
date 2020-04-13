@@ -117,16 +117,20 @@ let Player = (name) => {
 }
 
 let gameplay = (() => {
-    let player1 = Player("Player 1");
+    let player1 = Player("X");
     player1.setMarker("X");
-    let player2 = Player("Player 2");
+    let player2 = Player("O");
     player2.setMarker("O");
     let currentPlayer = player1;
     let allCells = document.querySelectorAll('.cell');
+    let resetCells = () => {
+        allCells.forEach((cell)=> {cell.classList.remove('disabled')});
+    }
     let launch = () => {
     allCells.forEach((cell) => {
         cell.addEventListener("click", (e) => {
             console.log(e.target);
+            e.target.classList.add("disabled");
             let k = e.target.id;
             gameBoard.setCase(k, currentPlayer);
             gameBoard.sync();
@@ -139,6 +143,7 @@ let gameplay = (() => {
                     scoreboard.sync();
                     changeCurrentPlayer();
                     messagesBoard.set(`${currentPlayer.getName()}'s turn`);
+                    resetCells();
                 }, 1500);
 
             } else if (gameBoard.isDraw()) {
@@ -148,6 +153,7 @@ let gameplay = (() => {
                     gameBoard.sync();
                     changeCurrentPlayer();
                     messagesBoard.set(`${currentPlayer.getName()}'s turn`);
+                    resetCells();
                 }, 1500);
             } else {
                 gameBoard.sync();
