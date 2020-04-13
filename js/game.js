@@ -1,202 +1,172 @@
-const gameBoard = (() => {
-  let cases = [
-    ["_", "_", "_"],
-    ["_", "_", "_"],
-    ["_", "_", "_"],
-  ];
-  // playerMarker denotes either 'x' or 'o'
-  const setCase = (caseNumber, player) => {
-    const i = (caseNumber / 3) >> 0;
-    const j = caseNumber % 3;
-    const actualCaseWrapper = document.querySelector(`#case-${caseNumber}`);
-    const actualCase = document.querySelector(`#case-${caseNumber} span`);
-    const playerMarker = player.getMarker();
-    cases[i][j] = playerMarker;
-    actualCase.textContent = playerMarker;
-    actualCaseWrapper.classList.add("case-played");
-  };
-  const isWinner = (player) => {
-    const marker = player.getMarker();
-    const winningArray = [marker, marker, marker];
-    const allCombinations = [];
-    // all rows
-    for (let i = 0; i < 3; i++) {
-      allCombinations.push(cases[i]);
-    }
-    // all columns
-    for (let j = 0; j < 3; j++) {
-      allCombinations.push([cases[0][j], cases[1][j], cases[2][j]]);
-    }
-    // both diagonals
-    allCombinations.push([cases[0][0], cases[1][1], cases[2][2]]);
-    allCombinations.push([cases[2][0], cases[1][1], cases[0][2]]);
-    for (let i = 0; i < 8; i++) {
-      if (JSON.stringify(winningArray) === JSON.stringify(allCombinations[i])) {
-        return true;
-      }
-    }
-    return false;
-  };
-  const isDraw = () => {
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (cases[i][j] === "_") {
-          return false;
+/*
+ ==============
+ GAME BOARD MODULE
+ ==============
+*/
+
+let gameBoard = (() => {
+    let boardArray = [["_", "_", "_"], ["_", "_", "_"], ["_", "_", "_"]];
+
+    let setCase = (action, player) => {
+        let marker = player.getMarker();
+        let i = (action / 3) >> 0;
+        let j = action % 3;
+        if (boardArray[i][j] === "_") {
+            boardArray[i][j] = marker;
         }
-      }
     }
-    return true;
-  };
-  const reset = () => {
-    cases = [
-      ["_", "_", "_"],
-      ["_", "_", "_"],
-      ["_", "_", "_"],
-    ];
-    document.querySelectorAll(".board-case").forEach((oneCase) => {
-      oneCase.classList.remove("case-played");
-    });
-    document.querySelectorAll(".board-case span").forEach((oneCase) => {
-      oneCase.textContent = "";
-    });
-  };
-  return { setCase, isWinner, isDraw, reset };
-})();
 
-const displayController = (() => {
-  let namePlayer = document.querySelector("#player-1 span");
-  let scorePlayer = document.querySelector("#score-1 span");
-  let scoreComputer = document.querySelector("#score-2 span");
-  const addScorePlayer = () => {
-    scorePlayer.textContent = parseInt(scorePlayer.textContent) + 1;
-  };
-  const addScoreComputer = () => {
-    scoreComputer.textContent = parseInt(scoreComputer.textContent) + 1;
-  };
-  const setNamePlayer = (newName) => {
-    namePlayer.textContent = newName;
-  };
-  return { addScorePlayer, addScoreComputer, setNamePlayer };
-})();
-
-const gameFlowBoard = (() => {
-  const flowBoard = document.querySelector(".controls span");
-  const setFlowBoard = (message) => {
-    flowBoard.textContent = message;
-  };
-  return { setFlowBoard };
-})();
-
-const playerVsComputer = (playerName) => {
-  const computer = Player("Computer");
-  computer.setRandomMarker();
-  const player = Player(playerName);
-  player.setMarker(computer);
-  displayController.setNamePlayer(playerName);
-  let currPlayer = (Math.random() * 2) >> 0 ? player : computer;
-  let playedMoves = [];
-  let computerMove = null;
-  gameFlowBoard.setFlowBoard(`${currPlayer.getName()}'s turn!`);
-  const casesButtons = [];
-
-  const getCurrPlayer = () => {
-    return currPlayer;
-  };
-  const setCurrPlayer = (player) => {
-    currPlayer = player;
-  };
-  const changePlayer = () => {
-    if (currPlayer.getName() === "Computer") {
-      setCurrPlayer(player);
-    } else {
-      setCurrPlayer(computer);
+    let reset = () => {
+        boardArray = [["_", "_", "_"], ["_", "_", "_"], ["_", "_", "_"]];
     }
-  };
-  const reset = () => {
-    gameBoard.reset();
-    changePlayer();
-    gameFlowBoard.setFlowBoard(`${currPlayer.getName()}'s turn!`);
-    playedMoves = [];
-  };
 
-  const computerPlays = () => {
-    computerMove = null;
-    do {
-      computerMove = (Math.random() * 9) >> 0;
-      console.log(computerMove);
-    } while (playedMoves.includes(computerMove));
-    gameBoard.setCase(computerMove, currPlayer);
-    playedMoves.push(computerMove);
-    changePlayer();
-    gameFlowBoard.setFlowBoard(`${currPlayer.getName()}'s turn!`);
-  };
-  for (let i = 0; i < 9; i++) {
-    casesButtons.push(document.querySelector(`#case-${i}`));
-    casesButtons[i].addEventListener("click", () => {
-      if (!casesButtons[i].classList.contains("case-played")) {
-        /*
-          A MOVE
-        */
-        gameBoard.setCase(i, currPlayer);
-        playedMoves.push(i);
-        /*
-          WINNER SCENARIO
-        */
-        if (gameBoard.isWinner(currPlayer)) {
-          gameFlowBoard.setFlowBoard(`Game Over. ${currPlayer.getName()} won!`);
-          if (currPlayer.getName() === "Computer") {
-            displayController.addScoreComputer();
-          } else {
-            displayController.addScorePlayer();
-          }
-          casesButtons.forEach((button) => {
-            button.classList.add("case-played");
-          });
-          setTimeout(() => {
-            reset();
-          }, 2500);
-          /*
-          DRAW
-        */
-        } else if (gameBoard.isDraw()) {
-          casesButtons.forEach((button) => {
-            button.classList.add("case-played");
-          });
-          gameFlowBoard.setFlowBoard(`It's a draw!`);
-          setTimeout(() => {
-            reset();
-          }, 2500);
-          /* 
-          LEGAL MOVE
-        */
-        } else {
-          changePlayer();
-          gameFlowBoard.setFlowBoard(`${currPlayer.getName()}'s turn!`);
-          setTimeout(() => {
-            computerPlays();
-          }, 1500);
+    let sync = () => {
+        let allCells = Array.from(document.querySelectorAll('.cell'));
+        allCells.forEach((cell) => {
+            let k = allCells.indexOf(cell);
+            let i = (k / 3) >> 0;
+            let j = k % 3;
+            cell.innerHTML = `<p>${(boardArray[i][j] === "_") ? " " : boardArray[i][j]}</p>`;
+        })
+    }
+    let checkWin = (player) => {
+        let marker = player.getMarker();
+        let markerCombo = [marker, marker, marker];
+        let playerWins = false;
+        let allCombos = [];
+        for (let i = 0; i < 3; i++) {
+            allCombos.push([boardArray[i][0], boardArray[i][1], boardArray[i][2]]);
         }
-      }
-    });
-  }
-  return { getCurrPlayer, setCurrPlayer, changePlayer };
-};
+        for (let j = 0; j < 3; j++) {
+            allCombos.push([boardArray[0][j], boardArray[1][j], boardArray[2][j]]);
+        }
+        allCombos.push([boardArray[0][0], boardArray[1][1], boardArray[2][2]]);
+        allCombos.push([boardArray[2][0], boardArray[1][1], boardArray[0][2]]);
+        allCombos.forEach((combo) => {
+            if (JSON.stringify(combo) === JSON.stringify(markerCombo)) {
+                playerWins = true;
+            }
+        })
+        return playerWins;
+    }
 
-const Player = (name) => {
-  let marker = null;
-  const setRandomMarker = () => {
-    marker = (Math.random() * 2) >> 0 === 0 ? "O" : "X";
-  };
-  const setMarker = (player) => {
-    marker = player.getMarker() === "X" ? "O" : "X";
-  };
-  const getMarker = () => {
-    return marker;
-  };
-  const getName = () => {
-    return name;
-  };
-  return { setRandomMarker, setMarker, getMarker, getName };
-};
+    let isDraw = () => {
+        let draw = true;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (boardArray[i][j] === "_") {
+                    draw = false;
+                    break;
+                }
+            }
+        }
+        return draw;
+    }
+    return {setCase, checkWin, sync, reset, isDraw};
+})
+();
 
-const newGame = playerVsComputer("Anas");
+let messagesBoard = (() => {
+    let board = document.querySelector('.messages span');
+    let set = (text) => {
+        board.innerHTML = text;
+    }
+    return {set}
+})();
+
+let scoreboard = (() => {
+    let player1 = null;
+    let player2 = null;
+    let player1name = document.querySelector('.player-1');
+    let player2name = document.querySelector('.player-2');
+    let score1 = document.querySelector('.score-1');
+    let score2 = document.querySelector('.score-2');
+    let setPlayers = (playerA, playerB) => {
+        player1 = playerA;
+        player2 = playerB;
+        player1name.innerHTML = player1.getName();
+        player2name.innerHTML = player2.getName();
+    }
+
+    let sync = () => {
+        score1.innerHTML = player1.getScore();
+        score2.innerHTML = player2.getScore();
+    }
+    return {setPlayers, sync};
+})();
+
+let Player = (name) => {
+    let marker = "";
+    let score = 0;
+    let getScore = () => {
+        return score;
+    }
+    let addScore = () => {
+        score++;
+    }
+    let setMarker = (markerXO) => {
+        marker = markerXO;
+    }
+    let getMarker = () => {
+        return marker;
+    }
+    let getName = () => {
+        return name;
+    }
+    return {setMarker, getMarker, getName, getScore, addScore};
+}
+
+let gameplay = (() => {
+    let player1 = Player("Player 1");
+    player1.setMarker("X");
+    let player2 = Player("Player 2");
+    player2.setMarker("O");
+    let currentPlayer = player1;
+    let allCells = document.querySelectorAll('.cell');
+    let launch = () => {
+    allCells.forEach((cell) => {
+        cell.addEventListener("click", (e) => {
+            console.log(e.target);
+            let k = e.target.id;
+            gameBoard.setCase(k, currentPlayer);
+            gameBoard.sync();
+            if (gameBoard.checkWin(currentPlayer)) {
+                currentPlayer.addScore();
+                messagesBoard.set(`${currentPlayer.getName()} has won!`);
+                setTimeout(() => {
+                    gameBoard.reset();
+                    gameBoard.sync();
+                    scoreboard.sync();
+                    changeCurrentPlayer();
+                    messagesBoard.set(`${currentPlayer.getName()}'s turn`);
+                }, 1500);
+
+            } else if (gameBoard.isDraw()) {
+                messagesBoard.set(`It's a draw!`);
+                setTimeout(() => {
+                    gameBoard.reset();
+                    gameBoard.sync();
+                    changeCurrentPlayer();
+                    messagesBoard.set(`${currentPlayer.getName()}'s turn`);
+                }, 1500);
+            } else {
+                gameBoard.sync();
+                changeCurrentPlayer();
+                messagesBoard.set(`${currentPlayer.getName()}'s turn`);
+            }
+        })
+    })}
+    let start = () => {
+        gameBoard.sync();
+        scoreboard.setPlayers(player1, player2);
+        setTimeout(() => {messagesBoard.set(`${currentPlayer.getName()}'s turn`);         launch();
+        }, 1500);
+
+    }
+    let changeCurrentPlayer = () => {
+        currentPlayer = (currentPlayer.getName() === player2.getName()) ? player1 : player2;
+    }
+    return {start};
+})();
+
+gameplay.start();
