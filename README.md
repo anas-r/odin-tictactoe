@@ -1,1 +1,1 @@
-# odin-tictactoe
+# tictactoe
